@@ -7,6 +7,7 @@ import appPreviewImg from '../assets/app-preview.png'
 import avatarsImg from '../assets/avatars.png'
 import iconCheckImg from '../assets/icon-check.svg'
 import logoImg from '../assets/logo.svg'
+import { SuccessCreatePool } from '../components/SuccessCreatePool'
 import { api } from '../lib/axios'
 
 interface Props {
@@ -19,6 +20,10 @@ export default function Home(props: Props) {
 
   const [poolTitle, setPoolTitle] = useState('')
 
+  const [codePoolCreated, setPoolCreated] = useState('')
+
+  const [openDialogSuccess, setOpenDialogSuccess] = useState(false)
+
   async function handleCreatePool(event: FormEvent) {
     event.preventDefault()
 
@@ -29,11 +34,11 @@ export default function Home(props: Props) {
       
       const { code } = response.data
 
-      await navigator.clipboard.writeText(code)
+      setPoolCreated(code)
 
       setPoolTitle('')
 
-      alert('Bolão criado com sucesso. O código foi copiado para sua área de transferência.')
+      setOpenDialogSuccess(true)
     } catch (err) {
       alert('Falha ao criar o bolão. Tente novamente.')
     }
@@ -103,6 +108,12 @@ export default function Home(props: Props) {
       </main>
 
       <Image src={appPreviewImg} alt="Dois celulares exibindo uma prévia da aplicação móvel do NLW Copa" quality={100} />
+      
+      <SuccessCreatePool 
+        open={openDialogSuccess} 
+        onOpenChange={setOpenDialogSuccess}
+        code={codePoolCreated} 
+      />
     </div>
   )
 }
@@ -124,7 +135,6 @@ export const getStaticProps: GetStaticProps = async () => {
       guessCount: guessCountResponse.data.count,
       userCount: userCountResponse.data.count
     },
-    revalidate: 60 * 5 // 5 minutes
   }
 
 }
