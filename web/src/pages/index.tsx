@@ -2,6 +2,7 @@ import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import { FormEvent, useState } from 'react'
+import { ClipLoader } from 'react-spinners'
 
 import appPreviewImg from '../assets/app-preview.png'
 import avatarsImg from '../assets/avatars.png'
@@ -24,10 +25,20 @@ export default function Home(props: Props) {
 
   const [openDialogSuccess, setOpenDialogSuccess] = useState(false)
 
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function delay() {
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  }
+
   async function handleCreatePool(event: FormEvent) {
     event.preventDefault()
 
+    setIsLoading(true)
+
     try {
+      await delay()
+
       const response = await api.post('/pools', {
         title: poolTitle
       })
@@ -41,6 +52,8 @@ export default function Home(props: Props) {
       setOpenDialogSuccess(true)
     } catch (err) {
       alert('Falha ao criar o bolão. Tente novamente.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -67,16 +80,23 @@ export default function Home(props: Props) {
 
         <form onSubmit={handleCreatePool} className="mt-10 flex gap-2">
           <input 
-            className="flex-1 py-4 px-6 rounded bg-gray-800 border border-gray-600 text-sm text-gray-100"
+            className="flex-1 py-4 px-6 rounded bg-gray-800 border border-gray-600 text-sm text-gray-100 disabled:opacity-90 disabled:cursor-not-allowed"
             type="text" 
             required 
             placeholder="Qual nome do seu bolão?"
             value={poolTitle}
             onChange={event => setPoolTitle(event.target.value)} 
+            disabled={isLoading}
           />
 
-          <button className="bg-yellow-500 py-4 px-6 rounded text-gray-900 font-bold text-sm uppercase hover:bg-yellow-700">
-            Criar meu bolão
+          <button 
+            className="bg-yellow-500 py-4 px-6 rounded text-gray-900 font-bold text-sm uppercase hover:bg-yellow-700 w-44 disabled:opacity-90 disabled:cursor-not-allowed"
+            disabled={isLoading}
+          >
+            {
+              isLoading ? <ClipLoader size={20} color="white" /> :
+              "Criar meu bolão"
+            }
           </button>
         </form>
 
